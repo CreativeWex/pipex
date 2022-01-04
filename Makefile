@@ -4,7 +4,8 @@ CC = gcc
 
 HEADER = pipex.h
 
-CFLAGS = -Wall -Wextra -Werror -I $(HEADER)
+#CFLAGS = -Wall -Wextra -Werror -I $(HEADER)
+CFLAGS = -I $(HEADER) #КЛОУНСКАЯ СТРОКА
 
 SRC = pipex.c pipex_utils.c
 
