@@ -31,15 +31,14 @@ int	main(int argc, char **argv)
 	{
         input_fd = ft_open_file(argv[1], 0);
         output_fd = ft_open_file(argv[4], 1);
-        dup2(input_fd, 0);
-        dup2(output_fd, 1);
+        // dup2(input_fd, 0);
+        // dup2(output_fd, 1);
+		
 	}
 	else
 		write(2, "Usage : ./pipex infile cmd1 cmd2 outfile\n", 41);
 	return (1);
 }
-
-
 
 
 

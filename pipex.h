@@ -6,6 +6,5 @@
 # include <stdlib.h>
 # include <sys/wait.h>
 
-void    ft_putstr_fd(char const *s, int fd);
 
 #endif
