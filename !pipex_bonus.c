@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
+/*   pipex_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abernita <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/10 15:23:28 by abernita          #+#    #+#             */
-/*   Updated: 2022/01/10 15:23:55 by abernita         ###   ########.fr       */
+/*   Created: 2022/01/11 15:30:33 by abernita          #+#    #+#             */
+/*   Updated: 2022/01/11 15:30:39 by abernita         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,18 @@
 
 int openfile(char *file, int mode)
 {
-    if (mode == 0)
-    {
-        if (access(file, F_OK))
-            display_error("File not found", 127);
-
-		if (open(file, O_RDONLY) == -1)
-			display_error("Can not open file", 127);
-
+	if (mode == 0)
+	{
+		if (access(file, F_OK))
+		{
+			write(2, "File not found\n", 15);
+			return (0);
+		}
 		return (open(file, O_RDONLY));
-    }
-    return (open(file, O_CREAT | O_WRONLY | O_TRUNC, 0777));
+	}
+	else
+		return (open(file, O_CREAT | O_WRONLY | O_TRUNC,
+		             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH));
 }
 
 char    *full_path(char *cmd, char **env)
@@ -37,10 +38,8 @@ char    *full_path(char *cmd, char **env)
 	i = 0;
 	while (env[i] && strnstr(env[i], "PATH=", 5))
 		i++;
-
 	if (!env[i])
 		return (cmd);
-		
 	path = env[i] + 5;
 	while (path && len_ch(path, ':') > -1)
 	{
@@ -61,53 +60,58 @@ void    child_process(char *cmd, char **env)
 	char    *path;
 
 	args = ft_split(cmd, ' ');
-	if (len_ch(args[0], '/') > -1)
+	if (len_ch(args[0], ':') > -1)
 		path = args[0];
 	else
 		path = full_path(args[0], env);
 	execve(path, args, env);
-	display_error("Command not found", 127);
+	write(2, "Command not found\n", 19);
+	exit(127);
 }
 
-void    parent_process(char *cmd, char **env, int f1)//!!!!!!!!!!!!!!!!!!
+void    parent_process(char *cmd, char **env, int f1)
 {
 	pid_t parent;
 	int end[2];
 
-	if (pipe(end)== -1)
-		display_error("Pipe error", 126);
-
+	pipe(end);
 	parent = fork();
-	check_fork_for_error(parent);
 	if (parent)
 	{
-		if (close(end[1]) == -1 || dup2(end[0], 0) == -1)
-			display_error("Parent process error", 126);
+		close(end[1]);
+		dup2(end[0], 0);
 	}
 	else
 	{
-		if (close(end[0]) == -1 || dup2(end[1], 1) == -1 || f1 == 0)
-			display_error("Child process error", 126);
-		child_process(cmd, env);
+		close(end[0]);
+		dup2(end[1], 1);
+		if (f1 == 0)
+			exit(1);
+		else
+			child_process(cmd, env);
 	}
 }
 
 int main(int ac, char **av, char **env)
 {
-    int f1;
-    int f2;
+	int f1;
+	int f2;
+	int i;
 
-    if (ac == 5)
-    {
+	i = 3;
+	if (ac >= 5)
+	{
 		f1 = openfile(av[1], 0);
-		f2 = openfile(av[4], 1);
-		if (dup2(f1, 0) == -1 || dup2(f2, 1) == -1)
-			display_error("Dup2 error", 126);
-			
+		f2 = openfile(av[ac - 1], 1);
+		dup2(f1, 0);
+		dup2(f2, 1);
 		parent_process(av[2], env, f1);
-		child_process(av[3], env);
+		while (i < ac - 2)
+			parent_process(av[i++], env, 1);
+		child_process(av[i], env);
+//     wait();
 	}
 	else
-	    write(2, "Need 4 arguments\n", 18);
-    return (1);
+		write(2, "Need 4 arguments\n", 18);
+	return (1);
 }
