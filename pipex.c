@@ -1,14 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abernita <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/10 15:23:28 by abernita          #+#    #+#             */
-/*   Updated: 2022/01/10 15:23:55 by abernita         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+
 
 #include "pipex.h"
 
@@ -40,17 +30,17 @@ char    *full_path(char *cmd, char **env)
 
 	if (!env[i])
 		return (cmd);
-		
+
 	path = env[i] + 5;
-	while (path && len_ch(path, ':') > -1)
+	while (path && char_first_encounter(path, ':') > -1)
 	{
-		dir = str_ndup(path, len_ch(path, ':'));
+		dir = ft_str_ndup(path, char_first_encounter(path, ':'));
 		full = make_command(dir, cmd);
 		free(dir);
 		if (access(full, F_OK) == 0)
 			return (full);
 		free(full);
-		path += len_ch(path, ':') + 1;
+		path += char_first_encounter(path, ':') + 1;
 	}
 	return (cmd);
 }
@@ -61,7 +51,7 @@ void    child_process(char *cmd, char **env)
 	char    *path;
 
 	args = ft_split(cmd, ' ');
-	if (len_ch(args[0], '/') > -1)
+	if (char_first_encounter(args[0], '/') > -1)
 		path = args[0];
 	else
 		path = full_path(args[0], env);

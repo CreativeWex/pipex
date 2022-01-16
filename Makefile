@@ -6,11 +6,11 @@ HEADER = pipex.h
 
 CFLAGS = -Wall -Wextra -Werror -I $(HEADER)
 
-SRC = pipex.c pipex_utils.c pipex_errors.c
+SRC = pipex.c pipex_utils.c pipex_utils_second.c pipex_utils_third.c pipex_errors.c
 
 OBJ = $(SRC:c=o)
 
-SRCB = pipex_bonus.c pipex_utils.c
+SRCB = pipex_bonus.c pipex_utils.c pipex_utils_second.c pipex_utils_third.c pipex_errors.c
 
 OBJB = $(SRCB:c=o)
 
