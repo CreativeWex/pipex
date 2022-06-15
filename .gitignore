@@ -1,0 +1,8 @@
+.DS_Store
+example/
+infile
+outfile
+tester/
+pipex
+*.o 
+vfurmanePipexTester/
